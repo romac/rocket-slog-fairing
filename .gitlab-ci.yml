@@ -21,7 +21,7 @@ pages:
   script:
     - cargo doc --no-deps
     - mv target/doc public
-    - echo '<meta http-equiv="refresh" content="0; url=rocket-slog/index.html">' > public/index.html
+    - echo '<meta http-equiv="refresh" content="0; url=rocket_slog/index.html">' > public/index.html
   artifacts:
     paths:
       - public
