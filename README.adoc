@@ -8,7 +8,7 @@ handlers
 In your `Cargo.toml`, put the following in the `[dependencies]` section:
 
 ----
-rocket-slog = "0.1"
+rocket-slog = "0.2"
 ----
 
 For pre-2018-edition crates, put the following in your crate root:
