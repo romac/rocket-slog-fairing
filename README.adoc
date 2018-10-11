@@ -28,13 +28,20 @@ rocket logger unless you want the output from both logging systems.
 
 extern crate rocket;
 extern crate rocket_slog;
-#[macro_use(slog_o, debug)] extern crate slog;
-extern crate slog_term;
-extern crate slog_async;
+#[macro_use(debug)] extern crate slog;
+extern crate sloggers;
 
-use rocket::{State, Config};
-use slog::Drain;
+use std::error::Error;
+use rocket::{Config};
 use rocket_slog::{SyncLogger, SlogFairing};
+use sloggers::{
+    Build,
+    terminal::{
+        TerminalLoggerBuilder,
+        Destination,
+    },
+    types::Severity,
+};
 
 #[get("/")]
 fn index(logger: SyncLogger) -> &'static str {
@@ -42,11 +49,11 @@ fn index(logger: SyncLogger) -> &'static str {
     "hello, world"
 }
 
-fn main() {
-    let decorator = slog_term::TermDecorator::new().build();
-    let drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let drain = slog_async::Async::new(drain).build().fuse();
-    let logger = slog::Logger::root(drain, slog_o!("version" => env!("CARGO_PKG_VERSION")));
+fn main() -> Result<(), Box<Error>> {
+    let mut builder = TerminalLoggerBuilder::new();
+    builder.level(Severity::Debug);
+    builder.destination(Destination::Stderr);
+    let logger = builder.build()?;
 
     let fairing = SlogFairing::new(logger);
 
@@ -55,5 +62,6 @@ fn main() {
         .attach(fairing)
         .mount("/", routes![index])
         .launch();
+    Ok(())
 }
 ----

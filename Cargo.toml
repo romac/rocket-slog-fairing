@@ -1,6 +1,6 @@
 [package]
 name = "rocket-slog"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Paul Woolcock <paul@woolcock.us>"]
 license = "GPL-3.0"
 repository = "https://gitlab.com/pwoolcoc/rocket-slog-fairing"
@@ -8,7 +8,15 @@ homepage = "https://gitlab.com/pwoolcoc/rocket-slog-fairing"
 description = """
 Provides a fairing for use in rocket.rs applications that allows the user to use a slog `Logger` in place of the built-in rocket.rs logging system
 """
+documentation = "https://docs.rs/rocket-slog"
 
 [dependencies]
 slog = "2.4.1"
 rocket = "0.3.17"
+
+[dev-dependencies]
+rocket_codegen = "0.3.17"
+sloggers = "0.3"
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--no-deps"]

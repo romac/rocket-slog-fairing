@@ -6,13 +6,17 @@
 //!
 //! To your Cargo.toml, add
 //!
-//!     [dependencies]
-//!     rocket-slog = { git = "https://github.com/pwoolcoc/rocket-slog" }
+//! ```ignore
+//! [dependencies]
+//! rocket-slog = "0.2"
+//! ```
 //!
 //! In your rocket application, add
 //!
-//!     extern crate rocket_slog;
-//!     use rocket_slog::SlogFairing;
+//! ```
+//! extern crate rocket_slog;
+//! use rocket_slog::SlogFairing;
+//! ```
 //!
 //! Then, when you define your rocket.rs app, you need to do 3 things:
 //!
@@ -22,45 +26,84 @@
 //!
 //! # Example
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! #![feature(custom_derive, plugin)]
 //! #![plugin(rocket_codegen)]
 //!
 //! extern crate rocket;
 //! extern crate rocket_slog;
-//! #[macro_use(slog_o)] extern crate slog;
-//! extern crate slog_term;
-//! extern crate slog_async;
+//! #[macro_use(debug)] extern crate slog;
+//! extern crate sloggers;
+//!
+//! use std::error::Error;
 //!
 //! use rocket::Config;
-//! use slog::Drain;
 //! use rocket_slog::SlogFairing;
+//! use sloggers::{
+//!     Build,
+//!     terminal::{
+//!         TerminalLoggerBuilder,
+//!         Destination,
+//!     },
+//!     types::Severity,
+//! };
 //!
-//! fn main() {
-//!     let decorator = slog_term::TermDecorator::new().build();
-//!     let drain = slog_term::FullFormat::new(decorator).build().fuse();
-//!     let drain = slog_async::Async::new(drain).build().fuse();
-//!     let logger = slog::Logger::root(drain, slog_o!("version" => env!("CARGO_PKG_VERSION")));
-//!
+//! fn main() -> Result<(), Box<Error>> {
+//!     let mut builder = TerminalLoggerBuilder::new();
+//!     builder.level(Severity::Debug);
+//!     builder.destination(Destination::Stderr);
+//!     let logger = builder.build()?;
 //!     let fairing = SlogFairing::new(logger);
 //!
 //!     let config = Config::development().unwrap();
 //!     rocket::custom(config, false) // disables logging
 //!         .attach(fairing)
 //!         .launch();
+//!     Ok(())
 //! }
 //! ```
 //!
 //! The fairing also adds your logger to rocket's managed state, so you can do this in your routes
 //! too:
 //!
-//! ```rust,ignore
+//! ```rust,no_run
+//! # #![feature(custom_derive, plugin)]
+//! # #![plugin(rocket_codegen)]
+//! # extern crate rocket;
+//! # extern crate rocket_slog;
+//! # #[macro_use(debug)] extern crate slog;
+//! # extern crate sloggers;
+//! # use std::error::Error;
+//! # use rocket::Config;
+//! # use rocket_slog::SlogFairing;
+//! # use sloggers::{
+//! #     Build,
+//! #     terminal::{
+//! #         TerminalLoggerBuilder,
+//! #         Destination,
+//! #     },
+//! #     types::Severity,
+//! # };
 //! use rocket_slog::SyncLogger;
 //!
 //! #[get("/")]
-//! fn index(log: SyncLogger) -> String {
-//!     
+//! fn index(log: SyncLogger) -> &'static str {
+//!     debug!(log.get(), "some log message");
+//!     "Hello world"
 //! }
+//! # fn main() -> Result<(), Box<Error>> {
+//! #     let mut builder = TerminalLoggerBuilder::new();
+//! #     builder.level(Severity::Debug);
+//! #     builder.destination(Destination::Stderr);
+//! #     let logger = builder.build()?;
+//! #     let fairing = SlogFairing::new(logger);
+//! #     let config = Config::development().unwrap();
+//! #     rocket::custom(config, false) // disables logging
+//! #         .mount("/", routes![index])
+//! #         .attach(fairing)
+//! #         .launch();
+//! #     Ok(())
+//! # }
 //! ```
 #[macro_use] extern crate slog;
 extern crate rocket;
