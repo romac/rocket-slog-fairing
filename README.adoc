@@ -37,8 +37,8 @@ use slog::Drain;
 use rocket_slog::{SyncLogger, SlogFairing};
 
 #[get("/")]
-fn index(logger: State<SyncLogger>) -> &'static str {
-    debug!(&**logger, "THIS IS A CUSTOM MESSAGE");
+fn index(logger: SyncLogger) -> &'static str {
+    debug!(logger.get(), "THIS IS A CUSTOM MESSAGE");
     "hello, world"
 }
 

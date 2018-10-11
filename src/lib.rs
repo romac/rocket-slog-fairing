@@ -28,7 +28,7 @@
 //!
 //! extern crate rocket;
 //! extern crate rocket_slog;
-//! #[macro_use(slog_o, slog_kv)] extern crate slog;
+//! #[macro_use(slog_o)] extern crate slog;
 //! extern crate slog_term;
 //! extern crate slog_async;
 //!
@@ -68,15 +68,45 @@ extern crate rocket;
 use std::sync::Arc;
 
 use slog::Logger;
-use rocket::{Data, Request, Response, Rocket};
+use rocket::{Data, Request, Response, Rocket, State};
 use rocket::fairing::{Fairing, Info, Kind};
+use rocket::request;
 
-pub type SyncLogger = Arc<Logger>;
+/// Newtype struct wrapper around the passed-in slog::Logger
+#[derive(Debug, Clone)]
+pub struct SyncLogger(Arc<Logger>);
+
+/// Fairing used to provide a rocket.rs application with a slog::Logger
+#[derive(Debug, Clone)]
 pub struct SlogFairing(SyncLogger);
 
 impl SlogFairing {
+    /// Create a new SlogFairing using the slog::Logger
     pub fn new(root_logger: Logger) -> SlogFairing {
-        SlogFairing(Arc::new(root_logger))
+        SlogFairing(SyncLogger(Arc::new(root_logger)))
+    }
+}
+
+impl SyncLogger {
+    pub fn get(&self) -> &Logger {
+        &*self.0
+    }
+}
+
+impl std::ops::Deref for SyncLogger {
+    type Target = Arc<Logger>;
+
+    fn deref(&self) -> &Arc<Logger> {
+        &self.0
+    }
+}
+
+impl<'a, 'r> request::FromRequest<'a, 'r> for SyncLogger {
+    type Error = ();
+
+    fn from_request(req: &'a request::Request<'r>) -> request::Outcome<SyncLogger, ()> {
+        let sync_logger = req.guard::<State<SyncLogger>>()?;
+        rocket::Outcome::Success(sync_logger.clone())
     }
 }
 
