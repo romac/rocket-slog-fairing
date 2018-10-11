@@ -1,5 +1,7 @@
 = Integrate a slog Logger with your Rocket.rs application
 
+http://pwoolcoc.gitlab.io/rocket-slog-fairing/rocket_slog/index.html[Documentation (master)]
+
 This is a fairing that you can attach to your rocket.rs application to enable use of a slog `Logger` in your
 handlers
 
