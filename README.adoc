@@ -5,12 +5,12 @@ http://pwoolcoc.gitlab.io/rocket-slog-fairing/rocket_slog/index.html[Documentati
 This is a fairing that you can attach to your rocket.rs application to enable use of a slog `Logger` in your
 handlers
 
-== Installation
+== Installation (for rocket v0.3)
 
 In your `Cargo.toml`, put the following in the `[dependencies]` section:
 
 ----
-rocket-slog = "0.2"
+rocket-slog = "0.3"
 ----
 
 For pre-2018-edition crates, put the following in your crate root:
@@ -19,7 +19,21 @@ For pre-2018-edition crates, put the following in your crate root:
 extern crate rocket_slog;
 ----
 
-== Example
+== Installation (for rocket 0.4)
+
+In your `Cargo.toml`, put the following in the `[dependencies]` section:
+
+----
+rocket-slog = { git = "https://gitlab.com/pwoolcoc/rocket-slog-fairing" }
+----
+
+For pre-2018-edition crates, put the following in your crate root:
+
+----
+extern crate rocket_slog;
+----
+
+== Example (for rocket 0.3)
 
 Here is an example application that uses the rocket-slog fairing. Note that you should probably disable the builtin
 rocket logger unless you want the output from both logging systems.
@@ -63,6 +77,52 @@ fn main() -> Result<(), Box<Error>> {
     rocket::custom(config, false) // disables logging
         .attach(fairing)
         .mount("/", routes![index])
+        .launch();
+    Ok(())
+}
+----
+
+== Example (for rocket 0.4)
+
+----
+#![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use] extern crate rocket;
+#[macro_use(debug)] extern crate slog;
+extern crate rocket_slog;
+extern crate sloggers;
+
+use std::error::Error;
+use rocket::config::{Config, Environment, LoggingLevel};
+use rocket_slog::{SlogFairing, SyncLogger};
+use sloggers::{
+    Build,
+    terminal::{
+        TerminalLoggerBuilder,
+        Destination,
+    },
+    types::Severity,
+};
+
+#[get("/")]
+fn index(log: SyncLogger) -> &'static str {
+    debug!(log, "some log message");
+    "Hello world"
+}
+
+fn main() -> Result<(), Box<Error>> {
+    let mut builder = TerminalLoggerBuilder::new();
+    builder.level(Severity::Debug);
+    builder.destination(Destination::Stderr);
+    let logger = builder.build()?;
+    let fairing = SlogFairing::new(logger);
+    let config = Config::build(Environment::Development)
+            .log_level(LoggingLevel::Off) // disables logging
+            .finalize()
+            .unwrap();
+    rocket::custom(config)
+        .mount("/", routes![index])
+        .attach(fairing)
         .launch();
     Ok(())
 }

@@ -27,17 +27,15 @@
 //! # Example
 //!
 //! ```rust,no_run
-//! #![feature(custom_derive, plugin)]
-//! #![plugin(rocket_codegen)]
-//!
-//! extern crate rocket;
+//! #![feature(proc_macro_hygiene, decl_macro)]
+//! #[macro_use] extern crate rocket;
 //! extern crate rocket_slog;
 //! #[macro_use(debug)] extern crate slog;
 //! extern crate sloggers;
 //!
 //! use std::error::Error;
 //!
-//! use rocket::Config;
+//! use rocket::config::{Config, Environment, LoggingLevel};
 //! use rocket_slog::SlogFairing;
 //! use sloggers::{
 //!     Build,
@@ -55,8 +53,11 @@
 //!     let logger = builder.build()?;
 //!     let fairing = SlogFairing::new(logger);
 //!
-//!     let config = Config::development().unwrap();
-//!     rocket::custom(config, false) // disables logging
+//!     let config = Config::build(Environment::Development)
+//!             .log_level(LoggingLevel::Off) // disables logging
+//!             .finalize()
+//!             .unwrap();
+//!     rocket::custom(config) 
 //!         .attach(fairing)
 //!         .launch();
 //!     Ok(())
@@ -67,14 +68,13 @@
 //! too:
 //!
 //! ```rust,no_run
-//! # #![feature(custom_derive, plugin)]
-//! # #![plugin(rocket_codegen)]
-//! # extern crate rocket;
+//! #![feature(proc_macro_hygiene, decl_macro)]
+//! #[macro_use] extern crate rocket;
 //! # extern crate rocket_slog;
 //! # #[macro_use(debug)] extern crate slog;
 //! # extern crate sloggers;
 //! # use std::error::Error;
-//! # use rocket::Config;
+//! # use rocket::config::{Config, Environment, LoggingLevel};
 //! # use rocket_slog::SlogFairing;
 //! # use sloggers::{
 //! #     Build,
@@ -97,8 +97,11 @@
 //! #     builder.destination(Destination::Stderr);
 //! #     let logger = builder.build()?;
 //! #     let fairing = SlogFairing::new(logger);
-//! #     let config = Config::development().unwrap();
-//! #     rocket::custom(config, false) // disables logging
+//! #     let config = Config::build(Environment::Development)
+//! #             .log_level(LoggingLevel::Off) // disables logging
+//! #             .finalize()
+//! #             .unwrap();
+//! #     rocket::custom(config)
 //! #         .mount("/", routes![index])
 //! #         .attach(fairing)
 //! #         .launch();
@@ -179,7 +182,6 @@ impl Fairing for SlogFairing {
             if let Some(msgpack) = config.limits.get("msgpack") {
                 slog_info!(&self.0, "config"; "key" => "msgpack limit", "value" => ?msgpack);
             }
-            slog_info!(&self.0, "config"; "key" => "config_path", "value" => ?config.config_path);
             for (key, val) in &config.extras {
                 slog_info!(&self.0, "config"; "key" => &key, "value" => ?val);
             }
@@ -199,13 +201,14 @@ impl Fairing for SlogFairing {
         // can't seem to get the list of Catchers?
 
         let config = rocket.config();
-        let addr = format!("http://{}:{}", &config.address, &config.port);
+        let scheme = if config.tls_enabled() { "https" } else { "http" };
+        let addr = format!("{}://{}:{}", &scheme, &config.address, &config.port);
         slog_info!(&self.0, "listening"; "address" => %addr);
 
     }
 
     fn on_request(&self, request: &mut Request, _: &Data) {
-        slog_info!(self.0, "request"; "method" => ?request.method(), "uri" => ?request.uri().as_str());
+        slog_info!(self.0, "request"; "method" => ?request.method(), "uri" => ?request.uri().to_string());
     }
 
     fn on_response(&self, request: &Request, response: &mut Response) {
