@@ -88,7 +88,7 @@
 //!
 //! #[get("/")]
 //! fn index(log: SyncLogger) -> &'static str {
-//!     debug!(log.get(), "some log message");
+//!     debug!(log, "some log message");
 //!     "Hello world"
 //! }
 //! # fn main() -> Result<(), Box<Error>> {
@@ -137,10 +137,10 @@ impl SyncLogger {
 }
 
 impl std::ops::Deref for SyncLogger {
-    type Target = Arc<Logger>;
+    type Target = Logger;
 
-    fn deref(&self) -> &Arc<Logger> {
-        &self.0
+    fn deref(&self) -> &Logger {
+        &*self.0
     }
 }
 
