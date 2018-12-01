@@ -24,7 +24,7 @@ extern crate rocket_slog;
 In your `Cargo.toml`, put the following in the `[dependencies]` section:
 
 ----
-rocket-slog = { git = "https://gitlab.com/pwoolcoc/rocket-slog-fairing" }
+rocket-slog = "0.4.0-rc.2"
 ----
 
 For pre-2018-edition crates, put the following in your crate root:
