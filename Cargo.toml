@@ -15,7 +15,6 @@ slog = "2.4.1"
 rocket = "0.4.0-rc.2"
 
 [dev-dependencies]
-rocket_codegen = { git = "https://github.com/SergioBenitez/rocket" }
 sloggers = "0.3"
 
 [package.metadata.docs.rs]
