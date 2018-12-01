@@ -1,6 +1,6 @@
 [package]
 name = "rocket-slog"
-version = "0.4.0"
+version = "0.4.0-rc.2"
 authors = ["Paul Woolcock <paul@woolcock.us>"]
 license = "GPL-3.0"
 repository = "https://gitlab.com/pwoolcoc/rocket-slog-fairing"
@@ -12,7 +12,7 @@ documentation = "http://pwoolcoc.gitlab.io/rocket-slog-fairing/rocket_slog/index
 
 [dependencies]
 slog = "2.4.1"
-rocket = { git = "https://github.com/SergioBenitez/rocket" }
+rocket = "0.4.0-rc.2"
 
 [dev-dependencies]
 rocket_codegen = { git = "https://github.com/SergioBenitez/rocket" }
