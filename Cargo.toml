@@ -1,6 +1,6 @@
 [package]
 name = "rocket-slog"
-version = "0.4.0-rc.2"
+version = "0.4.0"
 authors = ["Paul Woolcock <paul@woolcock.us>"]
 license = "GPL-3.0"
 repository = "https://gitlab.com/pwoolcoc/rocket-slog-fairing"
@@ -11,8 +11,8 @@ Provides a fairing for use in rocket.rs applications that allows the user to use
 documentation = "http://pwoolcoc.gitlab.io/rocket-slog-fairing/rocket_slog/index.html"
 
 [dependencies]
-slog = "2.4.1"
-rocket = "0.4.0-rc.2"
+slog = "2.4"
+rocket = "0.4"
 
 [dev-dependencies]
 sloggers = "0.3"
