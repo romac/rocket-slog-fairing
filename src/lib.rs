@@ -8,7 +8,7 @@
 //!
 //! ```ignore
 //! [dependencies]
-//! rocket-slog = "0.4.0-rc.2"
+//! rocket-slog = "0.4"
 //! ```
 //!
 //! In your rocket application, add
