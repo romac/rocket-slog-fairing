@@ -12,7 +12,7 @@ documentation = "http://pwoolcoc.gitlab.io/rocket-slog-fairing/rocket_slog/index
 
 [dependencies]
 slog = "2.4"
-rocket = "0.4"
+rocket = { git = "https://github.com/SergioBenitez/Rocket.git", rev = "ba6aa2f05ec4060f340ebb5f9e09127aa435e380", features = [], default-features = false }
 
 [dev-dependencies]
 sloggers = "0.3"
